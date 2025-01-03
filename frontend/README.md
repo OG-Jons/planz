@@ -1,5 +1,52 @@
-# Vue 3 + TypeScript + Vite
+# Planz - Frontend
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+The frontend is built with [Vite](https://vitejs.dev/), [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), [TanStack Query](https://tanstack.com/query), [TanStack Router](https://tanstack.com/router) and [Chakra UI](https://chakra-ui.com/).
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## Frontend development
+
+Before you begin, ensure that you have either the Node Version Manager (nvm) or Fast Node Manager (fnm) installed on your system.
+
+* To install fnm follow the [official fnm guide](https://github.com/Schniz/fnm#installation). If you prefer nvm, you can install it using the [official nvm guide](https://github.com/nvm-sh/nvm#installing-and-updating).
+
+* After installing either nvm or fnm, proceed to the `frontend` directory:
+
+```bash
+cd frontend
+```
+* If the Node.js version specified in the `.nvmrc` file isn't installed on your system, you can install it using the appropriate command:
+
+```bash
+# If using fnm
+fnm install
+
+# If using nvm
+nvm install
+```
+
+* Once the installation is complete, switch to the installed version:
+
+```bash
+# If using fnm
+fnm use
+
+# If using nvm
+nvm use
+```
+
+* Within the `frontend` directory, install the necessary NPM packages:
+
+```bash
+npm install
+```
+
+* And start the live server with the following `npm` script:
+
+```bash
+npm run dev
+```
+
+* Then open your browser at http://localhost:5173/.
+
+Notice that this live server is not running inside Docker, it's for local development, and that is the recommended workflow. Once you are happy with your frontend, you can build the frontend Docker image and start it, to test it in a production-like environment. But building the image at every change will not be as productive as running the local development server with live reload.
+
+Check the file `package.json` to see other available options.
