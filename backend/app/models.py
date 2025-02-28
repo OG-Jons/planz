@@ -1,42 +1,40 @@
-import datetime
+from datetime import datetime
+from typing import List
 
 from sqlmodel import SQLModel, Field, Relationship
-import uuid
+
 
 class PlantBase(SQLModel):
     name: str
-    description: str
+    species: str
+
+
+class Plant(PlantBase, table=True):
+    __tablename__ = "plant"
+    id: int = Field(default=None, primary_key=True)
+    stats: List["Stat"] = Relationship(back_populates="plant")
 
 class PlantCreate(PlantBase):
     pass
 
-class Plant(PlantBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    stats: list["PlantStat"] = Relationship(back_populates="plant", cascade_delete=True)
+class PlantPublic(PlantBase):
+    id: int
+
+class PlantPublicWithStats(PlantPublic):
+    stats: List["Stat"]
+
+class StatBase(SQLModel):
+    humidity_score: float
+    sunlight_score: float
 
 
-# -------------------------------- #
-#            Statistics            #
-# -------------------------------- #
+class Stat(StatBase, table=True):
+    __tablename__ = "stat"
+    id: int = Field(default=None, primary_key=True)
+    timestamp: datetime = Field(default_factory=datetime.now, nullable=False)
+    plant_id: int = Field(foreign_key="plant.id", ondelete="CASCADE")
+    plant: Plant = Relationship(back_populates="stats")
 
-# Stats Base, which includes a timestamp, an entry for soil moisture and light
-class PlantStatBase(SQLModel):
-    timestamp: datetime.datetime = datetime.datetime.now()
-    soil_moisture: float
-    light: float
 
-class PlantStatsCreate(PlantStatBase):
+class StatCreate(StatBase):
     pass
-
-class PlantStat(PlantStatBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    plant_id: uuid.UUID = Field(foreign_key="plant.id", nullable=False, ondelete="CASCADE")
-    plant = Relationship(back_populates="stats")
-
-class PlantStatPublic(PlantStatBase):
-    id: uuid.UUID
-    plant_id: uuid.UUID
-
-class PlantStatsPublic(SQLModel):
-    data: list[PlantStatPublic]
-    count: int

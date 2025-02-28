@@ -1,29 +1,25 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from sqlalchemy import create_engine
-from sqlmodel import SQLModel
 
 from app.api.main import api_router
+from app.core.db import engine, create_db_and_tables
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Create database tables on startup
     create_db_and_tables()
     yield
-    SQLModel.metadata.drop_all(engine)
+    # Clean up on shutdown
+    engine.dispose()
 
+# Create the FastAPI app with name "planz"
 app = FastAPI(
-    title="Planz",
+    title="planz",
+    description="A plant care tracker",
+    version="0.1.0",
     lifespan=lifespan
 )
-
-sqlite_file_name = "plants.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
-
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
 
 app.include_router(api_router, prefix="/api")
