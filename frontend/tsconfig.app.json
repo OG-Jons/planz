@@ -8,7 +8,14 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@ass/*": ["./src/assets/*"],
+      "@cmp/*": ["./src/components/*"],
+      "@stores/*": ["./src/stores/*"],
+      "@use/*": ["./src/use/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
 }
