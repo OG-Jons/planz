@@ -1,33 +1,46 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import {type Plant} from "@/types.ts";
 import axios from "axios";
 import PlantStatsChart from "@cmp/PlantStatsChart.vue";
+import PlantImage from "@cmp/PlantImage.vue";
 
-const plantId = ref<number | null>(null)
-const plant = ref<Plant | null>(null)
+const plants = ref<Plant[] | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
+const cache = ref<number | null>(null)
 
 const fetchPlantData = async () => {
-  if (!plantId.value) {
-    error.value = "Please enter a plant ID"
-    return
-  }
-
   loading.value = true
   error.value = null
 
   try {
-    const response = await axios.get<Plant>(
-      `/api/plants/${plantId.value}?minutes=180`
+    const response = await axios.get<Plant[]>(
+      `/api/plants?minutes=1440`
     )
-    plant.value = response.data
+    plants.value = response.data
   } catch (err: any) {
     error.value = err.response?.data?.detail || "An error occurred"
-    plant.value = null
+    plants.value = null
   } finally {
     loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchPlantData()
+})
+
+const uploadPlantImage = async (file: File, id: number) => {
+  const formData = new FormData()
+  formData.append("file", file)
+
+  try {
+    await axios.post(`/api/plants/${id}/image`, formData)
+    await fetchPlantData()
+    cache.value = Date.now()
+  } catch (err: any) {
+    error.value = err.response?.data?.detail || "An error occurred"
   }
 }
 
@@ -37,17 +50,21 @@ const fetchPlantData = async () => {
   <div class="plant-view">
     <h1>Plant Stats Viewer</h1>
     <div class="search-container">
-      <input type="number" v-model.number="plantId" placeholder="Enter plant ID" @keyup.enter="fetchPlantData"/>
       <button @click="fetchPlantData">Get Plant Data</button>
     </div>
-
     <div v-if="loading" class="loading">Loading...</div>
     <div v-if="error" class="error">{{ error }}</div>
 
-    <div v-if="plant" class="plant-data">
-      <h2>{{ plant.name }} ({{ plant.species }})</h2>
-      <div class="chart-container">
-        <PlantStatsChart :stats="plant.stats" />
+    <div v-for="plant in plants">
+      <div v-if="plant" class="plant-data">
+        <h2>{{ plant.name }} ({{ plant.species }})</h2>
+
+        <div class="plant-image">
+          <PlantImage :path="plant.image" :cache="cache" @submitted="(file) => uploadPlantImage(file, plant.id)" />
+        </div>
+        <div class="chart-container">
+          <PlantStatsChart :stats="plant.stats" />
+        </div>
       </div>
     </div>
   </div>
@@ -55,7 +72,7 @@ const fetchPlantData = async () => {
 
 <style scoped>
 .plant-view {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -85,7 +102,6 @@ button:hover {
 
 .chart-container {
   margin-top: 40px;
-  height: 400px;
 }
 
 .loading {

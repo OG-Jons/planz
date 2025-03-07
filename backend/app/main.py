@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from starlette.staticfiles import StaticFiles
 
 from app.api.main import api_router
 from app.core.db import engine, create_db_and_tables
@@ -23,3 +24,4 @@ app = FastAPI(
 )
 
 app.include_router(api_router, prefix="/api")
+app.mount("/api/media", StaticFiles(directory="media"), name="media")

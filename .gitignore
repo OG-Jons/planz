@@ -6,3 +6,6 @@ __pycache__
 *.db
 
 */.env*
+**/media/*.png
+**/media/*.jpg
+**/media/*.jpeg

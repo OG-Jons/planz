@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from sqlmodel import SQLModel, Field, Relationship
 
@@ -12,6 +12,7 @@ class PlantBase(SQLModel):
 class Plant(PlantBase, table=True):
     __tablename__ = "plant"
     id: int = Field(default=None, primary_key=True)
+    image: str = Field(default=None, nullable=True)
     stats: List["Stat"] = Relationship(back_populates="plant")
 
 class PlantCreate(PlantBase):
@@ -19,6 +20,7 @@ class PlantCreate(PlantBase):
 
 class PlantPublic(PlantBase):
     id: int
+    image: Optional[str] = None
 
 class PlantPublicWithStats(PlantPublic):
     stats: List["Stat"]
