@@ -8,7 +8,7 @@ import PlantImage from "@cmp/PlantImage.vue";
 const plants = ref<Plant[] | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
-const cache = ref<number | null>(null)
+const cache = ref<number | null>(new Date().getTime())
 
 const fetchPlantData = async () => {
   loading.value = true
@@ -16,9 +16,10 @@ const fetchPlantData = async () => {
 
   try {
     const response = await axios.get<Plant[]>(
-      `/api/plants?minutes=1440`
+      `/api/plants`
     )
     plants.value = response.data
+    cache.value = new Date().getTime()
   } catch (err: any) {
     error.value = err.response?.data?.detail || "An error occurred"
     plants.value = null

@@ -10,12 +10,20 @@ const props = defineProps<{
 const chartData = computed(() => ({
   series: [
     {
-      name: 'Humidity Score',
-      data: props.stats.map(stat => [stat.timestamp, stat.humidity_score])
+      name: 'Soil Humidity Score',
+      data: props.stats.map(stat => [stat.timestamp, stat.soil_moisture_score])
     },
     {
       name: 'Sunlight Score',
       data: props.stats.map(stat => [stat.timestamp, stat.sunlight_score])
+    },
+    {
+      name: 'Temperature Score',
+      data: props.stats.map(stat => [stat.timestamp, stat.temperature_score])
+    },
+    {
+      name: 'Air Humidity Score',
+      data: props.stats.map(stat => [stat.timestamp, stat.humidity_score])
     }
   ],
 }));
@@ -41,7 +49,6 @@ const chartOptions = computed<ApexOptions>(() => ({
           }
         } else {
           return {
-            // keep on zooming
             xaxis: {
               min: xaxis.min,
               max: xaxis.max
@@ -61,6 +68,7 @@ const chartOptions = computed<ApexOptions>(() => ({
       },
     }
   },
+  colors: ['#37ca10', '#f6c811', '#e85908', '#00a6ff'],
   dataLabels: {
     enabled: false
   },
@@ -69,7 +77,7 @@ const chartOptions = computed<ApexOptions>(() => ({
   },
   xaxis: {
     type: 'datetime',
-    min: new Date().getTime() - 1000 * 60 * 60 * 1,
+    min: new Date().getTime() - 1000 * 60 * 60,
     tickAmount: 6,
     labels: {
       datetimeUTC: false

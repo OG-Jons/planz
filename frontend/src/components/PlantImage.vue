@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 defineProps<{
   path: string | null,
   cache: number | null

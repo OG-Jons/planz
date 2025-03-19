@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from starlette.staticfiles import StaticFiles
 
 from app.api.routes import plants, stats
 

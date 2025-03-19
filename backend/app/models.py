@@ -28,6 +28,8 @@ class PlantPublicWithStats(PlantPublic):
 class StatBase(SQLModel):
     humidity_score: float
     sunlight_score: float
+    temperature_score: float
+    soil_moisture_score: float
 
 
 class Stat(StatBase, table=True):

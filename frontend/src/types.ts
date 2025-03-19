@@ -10,6 +10,8 @@ export interface Stat {
     id: number
     humidity_score: number
     sunlight_score: number
+    temperature_score: number
+    soil_moisture_score: number
     timestamp: string
     plant_id: number
 }
