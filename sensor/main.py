@@ -5,6 +5,9 @@ import time
 from light_sensor import BH1750
 import network
 
+# Power Pin
+pwer = Pin(16, Pin.OUT)  # D0 corresponds to GPIO16
+
 # Enable LED on ESP8266
 led = Pin(2, Pin.OUT)  # D4 corresponds to GPIO2
 
@@ -25,22 +28,37 @@ sta_if.connect("SSID", "PASSWORD")
 while not sta_if.isconnected():
     pass
 
+def read_dht():
+    try:
+        dht_sensor.measure()
+        temperature = dht_sensor.temperature()
+        humidity = dht_sensor.humidity()
+    except Exception as e:
+        print("Error reading DHT22:", e)
+        temperature, humidity = None, None
+    return temperature, humidity
+
 while True:
     try:
+        # Power on the sensors
+        pwer.on()
+        time.sleep(5)  # Wait for the sensors to power on and stabilize
+
         # # Read Soil Moisture
         soil_value = soil_sensor.read()
 
         # Read Temperature and Humidity
-        dht_sensor.measure()
-        temperature = dht_sensor.temperature()
-        humidity = dht_sensor.humidity()
-        print("Temperature: {} C".format(temperature))
-        print("Humidity: {} %".format(humidity))
+        temperature, humidity = read_dht()
 
         # Read Light Intensity
         light_level = light_sensor.luminance(BH1750.CONT_HIRES_1)
 
+        # Power off the sensors
+        pwer.off()
+
         # Print Values
+        print("Temperature: {} C".format(temperature))
+        print("Humidity: {} %".format(humidity))
         print("Soil Moisture: {}".format(soil_value))
         print("Light Intensity: {} lx".format(light_level))
 
@@ -51,14 +69,14 @@ while True:
         # temperature_score: 0
         # soil_moisture_score: 0
         #}
-        r = requests.post("http://192.168.1.124:8000/api/plants/1/stats", json={
-            "humidity_score": humidity,
-            "sunlight_score": light_level,
-            "temperature_score": temperature,
-            "soil_moisture_score": soil_value
-        })
+        # r = requests.post("http://192.168.1.124:8000/api/plants/1/stats", json={
+        #     "humidity_score": humidity,
+        #     "sunlight_score": light_level,
+        #     "temperature_score": temperature,
+        #     "soil_moisture_score": soil_value
+        # })
 
-        time.sleep(5)  # Wait 5 seconds before the next reading
+        time.sleep(30)  # Wait 5 seconds before the next reading
 
     except Exception as e:
         print("Error:", e)
