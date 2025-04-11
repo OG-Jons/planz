@@ -10,19 +10,19 @@ const props = defineProps<{
 const chartData = computed(() => ({
   series: [
     {
-      name: 'Soil Humidity Score',
-      data: props.stats.map(stat => [stat.timestamp, stat.soil_moisture_score])
+      name: 'Soil Humidity',
+      data: props.stats.map(stat => [stat.timestamp, stat.soil_moisture_score]),
     },
     {
-      name: 'Sunlight Score',
+      name: 'Sunlight',
       data: props.stats.map(stat => [stat.timestamp, stat.sunlight_score])
     },
     {
-      name: 'Temperature Score',
+      name: 'Temperature',
       data: props.stats.map(stat => [stat.timestamp, stat.temperature_score])
     },
     {
-      name: 'Air Humidity Score',
+      name: 'Air Humidity',
       data: props.stats.map(stat => [stat.timestamp, stat.humidity_score])
     }
   ],
@@ -37,7 +37,6 @@ const chartOptions = computed<ApexOptions>(() => ({
     },
     events: {
       beforeZoom(_: any, {xaxis}: any) {
-        // From the props, get the field with the latest date
         const mainDiff = (new Date(props.stats[0].timestamp).valueOf())
         const zoomdifference = xaxis.max - xaxis.min ;
         if (zoomdifference > mainDiff) {
@@ -83,10 +82,18 @@ const chartOptions = computed<ApexOptions>(() => ({
       datetimeUTC: false
     }
   },
-  yaxis: {
-    min: 0,
-    max: 100,
-  },
+  yaxis: [
+    {
+      title: 'Moisture',
+      opposite: true,
+      min: 260,
+      max: 520,
+    },
+    {
+      seriesName: ["Sunlight Score", "Temperature Score", "Air Humidity Score"],
+      min: 0,
+    },
+  ],
   tooltip: {
     shared: true,
     intersect: false
