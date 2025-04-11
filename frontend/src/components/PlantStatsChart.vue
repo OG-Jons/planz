@@ -82,18 +82,6 @@ const chartOptions = computed<ApexOptions>(() => ({
       datetimeUTC: false
     }
   },
-  yaxis: [
-    {
-      title: 'Moisture',
-      opposite: true,
-      min: 260,
-      max: 520,
-    },
-    {
-      seriesName: ["Sunlight Score", "Temperature Score", "Air Humidity Score"],
-      min: 0,
-    },
-  ],
   tooltip: {
     shared: true,
     intersect: false
