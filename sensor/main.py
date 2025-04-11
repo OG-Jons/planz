@@ -4,6 +4,8 @@ import dht
 import time
 from light_sensor import BH1750
 import network
+import ujson as json
+import uos
 
 # Power Pin
 pwer = Pin(16, Pin.OUT)  # D0 corresponds to GPIO16
@@ -17,15 +19,8 @@ soil_sensor = ADC(0)  # ESP8266 has only ADC0 (A0) for analog input
 # DHT22 Sensor - Pin D4
 dht_sensor = dht.DHT22(Pin(13))  # D4 corresponds to GPIO2
 
-print("Connecting to wifi...")
-### Connect to WI-FI
-# sta_if = network.WLAN(network.STA_IF)
-# sta_if.active(True)
-# sta_if.connect("Nothing", "bigchonker100")
-# while not sta_if.isconnected():
-#     pass
-
-print("Connected to wifi")
+# File to store configuration
+CONFIG_FILE = "config.json"
 
 def read_dht():
     try:
@@ -37,55 +32,227 @@ def read_dht():
         temperature, humidity = None, None
     return temperature, humidity
 
-while True:
+# Function to read configuration
+def read_config():
     try:
-        print("Powering on Sensors...")
-        # Power on the sensors
-        pwer.on()
-        time.sleep(5)  # Wait for the sensors to power on and stabilize
+        with open(CONFIG_FILE, "r") as f:
+            return json.load(f)
+    except Exception:
+        return None
 
-        print("Reading Sensor values...")
-        # # Read Soil Moisture
-        soil_value = soil_sensor.read()
+# Function to save configuration
+def save_config(config):
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(config, f)
 
-        # Read Temperature and Humidity
-        temperature, humidity = read_dht()
+# Function to start Wi-Fi access point
+def start_access_point():
+    ap = network.WLAN(network.AP_IF)
+    ap.active(True)
+    ap.config(essid="PlantSensorSetup", authmode=network.AUTH_OPEN)
+    print("Access Point started. Connect to 'PlantSensorSetup' and visit 4.3.2.1")
+    return ap
 
-        # Read Light Intensity
-        # BH1750 Sensor - I2C on D1 (SCL) and D2 (SDA)
-        i2c = I2C(scl=Pin(5), sda=Pin(4))  # Force hardware I2C
-        light_sensor = BH1750(i2c)
+def connect_to_wifi(ssid, password):
+    sta_if = network.WLAN(network.STA_IF)
+    sta_if.active(True)
+    sta_if.connect(ssid, password)
+    timeout = 10  # Timeout in seconds
+    while not sta_if.isconnected() and timeout > 0:
+        print("Attempting to connect to Wi-Fi...")
+        time.sleep(1)
+        timeout -= 1
+    if sta_if.isconnected():
+        print("Connected to Wi-Fi")
+        print("IP Address:", sta_if.ifconfig()[0])
+        return True
+    else:
+        print("Failed to connect to Wi-Fi")
+        return False
 
-        light_level = light_sensor.luminance(BH1750.CONT_HIRES_1)
+def start_configuration_page():
+    import socket
+    addr = socket.getaddrinfo("0.0.0.0", 80)[0][-1]
+    s = socket.socket()
+    s.bind(addr)
+    s.listen(1)
+    print("Configuration page running on http://{}".format(network.WLAN(network.STA_IF).ifconfig()[0]))
 
-        # Power off the sensors
-        print("Powering off sensors...")
-        pwer.off()
+    while True:
+        cl, addr = s.accept()
+        print("Client connected from", addr)
+        request = cl.recv(1024).decode("utf-8")
+        if "POST" in request:
+            body = request.split("\r\n\r\n")[1]
+            data = json.loads(body)
+            wifi_ssid = data.get("wifi_ssid")
+            wifi_password = data.get("wifi_password")
+            server_address = data.get("server_address")
+            plant_name = data.get("plant_name")
+            plant_type = data.get("plant_type")
+            plant_id = data.get("plant_id")
 
-        # Print Values
-        print("Temperature: {} C".format(temperature))
-        print("Humidity: {} %".format(humidity))
-        print("Soil Moisture: {}".format(soil_value))
-        print("Light Intensity: {} lx".format(light_level))
+            if wifi_ssid and wifi_password:
+                config = {
+                    "wifi_ssid": wifi_ssid,
+                    "wifi_password": wifi_password,
+                    "server_address": server_address,
+                    "plant_id": plant_id,
+                    "plant_name": plant_name,
+                    "plant_type": plant_type,
+                }
+                save_config(config)
+                cl.send("HTTP/1.1 200 OK\r\n\r\nConfiguration saved. Rebooting...")
+                cl.close()
+                machine.reset()
+            else:
+                cl.send("HTTP/1.1 400 Bad Request\r\n\r\nInvalid data.")
+        else:
+            html = """<!DOCTYPE html>
+            <html>
+            <body>
+            <h1>Plant Sensor Configuration</h1>
+            <form method="POST" action="/">
+              <label>Wi-Fi SSID:</label><br>
+              <input type="text" name="wifi_ssid"><br>
+              <label>Wi-Fi Password:</label><br>
+              <input type="password" name="wifi_password"><br>
+              <label>Server Address:</label><br>
+              <input type="text" name="server_address"><br>
+              <label>Plant Name:</label><br>
+              <input type="text" name="plant_name"><br>
+              <label>Plant Type:</label><br>
+              <input type="text" name="plant_type"><br>
+              <label>OR Plant ID:</label><br>
+              <input type="text" name="plant_id"><br>
+              <input type="submit" value="Submit">
+            </form>
+            </body>
+            </html>"""
+            cl.send("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n" + html)
+        cl.close()
 
-        # Send a POst request to 192.168.1.124, with the following body:
-        ### {
-        # humidity_score: 0
-        # sunlight_score: 0
-        # temperature_score: 0
-        # soil_moisture_score: 0
-        #}
-        print("Sending data to server...")
-        # r = requests.post("http://10.95.1.8:8000/api/plants/1/stats", json={
-        #     "humidity_score": humidity,
-        #     "sunlight_score": light_level,
-        #     "temperature_score": temperature,
-        #     "soil_moisture_score": soil_value
-        # })
-        # print(r.status_code)
-        print("Waiting 60 seconds...")
-        time.sleep(60)  # Wait 30 seconds before the next reading
+# Function to start web server for configuration
+def start_web_server():
+    import socket
+    addr = socket.getaddrinfo("0.0.0.0", 80)[0][-1]
+    s = socket.socket()
+    s.bind(addr)
+    s.listen(1)
+    print("Web server running on http://4.3.2.1")
 
-    except Exception as e:
-        print("Error:", e)
-        time.sleep(5)
+    while True:
+        cl, addr = s.accept()
+        print("Client connected from", addr)
+        request = cl.recv(1024).decode("utf-8")
+        if "POST" in request:
+            body = request.split("\r\n\r\n")[1]
+            data = json.loads(body)
+            wifi_ssid = data.get("wifi_ssid")
+            wifi_password = data.get("wifi_password")
+            server_address = data.get("server_address")
+            plant_name = data.get("plant_name")
+            plant_type = data.get("plant_type")
+            plant_id = data.get("plant_id")
+
+            if plant_id:
+                config = {
+                    "wifi_ssid": wifi_ssid,
+                    "wifi_password": wifi_password,
+                    "server_address": server_address,
+                    "plant_id": plant_id,
+                }
+                save_config(config)
+                cl.send("HTTP/1.1 200 OK\r\n\r\nConfiguration saved. Rebooting...")
+                cl.close()
+                machine.reset()
+            elif plant_name and plant_type:
+                # Register plant and get Plant ID
+                response = requests.post(f"{server_address}/api/plants", json={
+                    "name": plant_name,
+                    "species": plant_type
+                })
+                if response.status_code == 200:
+                    plant_id = response.json().get("id")
+                    config = {
+                        "wifi_ssid": wifi_ssid,
+                        "wifi_password": wifi_password,
+                        "server_address": server_address,
+                        "plant_id": plant_id,
+                    }
+                    save_config(config)
+                    cl.send("HTTP/1.1 200 OK\r\n\r\nConfiguration saved. Rebooting...")
+                    cl.close()
+                    machine.reset()
+                else:
+                    cl.send("HTTP/1.1 400 Bad Request\r\n\r\nFailed to register plant.")
+            else:
+                cl.send("HTTP/1.1 400 Bad Request\r\n\r\nInvalid data.")
+        else:
+            html = """<!DOCTYPE html>
+            <html>
+            <body>
+            <h1>Plant Sensor Setup</h1>
+            <form method="POST" action="/">
+              <label>Wi-Fi SSID:</label><br>
+              <input type="text" name="wifi_ssid"><br>
+              <label>Wi-Fi Password:</label><br>
+              <input type="password" name="wifi_password"><br>
+              <label>Server Address:</label><br>
+              <input type="text" name="server_address"><br>
+              <label>Plant Name:</label><br>
+              <input type="text" name="plant_name"><br>
+              <label>Plant Type:</label><br>
+              <input type="text" name="plant_type"><br>
+              <label>OR Plant ID:</label><br>
+              <input type="text" name="plant_id"><br>
+              <input type="submit" value="Submit">
+            </form>
+            </body>
+            </html>"""
+            cl.send("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n" + html)
+        cl.close()
+
+# Main function
+def main():
+    config = read_config()
+    if not config or not connect_to_wifi(config["wifi_ssid"], config["wifi_password"]):
+        print("Starting Access Point...")
+        ap = start_access_point()
+        start_web_server()
+    else:
+        print("Starting Configuration Page...")
+        start_configuration_page()
+
+        # Normal operation loop
+        while True:
+            try:
+                print("Powering on Sensors...")
+                pwer.on()
+                time.sleep(5)
+
+                print("Reading Sensor values...")
+                soil_value = soil_sensor.read()
+                temperature, humidity = read_dht()
+                i2c = I2C(scl=Pin(5), sda=Pin(4))
+                light_sensor = BH1750(i2c)
+                light_level = light_sensor.luminance(BH1750.CONT_HIRES_1)
+
+                print("Powering off sensors...")
+                pwer.off()
+
+                print("Sending data to server...")
+                r = requests.post(f"{config['server_address']}/api/plants/{config['plant_id']}/stats", json={
+                    "humidity_score": humidity,
+                    "sunlight_score": light_level,
+                    "temperature_score": temperature,
+                    "soil_moisture_score": soil_value
+                })
+                print("Response:", r.status_code)
+                time.sleep(60)
+            except Exception as e:
+                print("Error:", e)
+                time.sleep(5)
+
+# Run the main function
+main()
