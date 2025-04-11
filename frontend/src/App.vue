@@ -12,7 +12,7 @@ onMounted(() => {
 
 <template>
   <div class="app-container">
-<!--    <sidebar />-->
+    <sidebar />
     <div class="content-container">
       <router-view />
     </div>

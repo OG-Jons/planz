@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:host": "vite --host",
-    "build": "vue-tsc -b && vite build",
+    "build": "npx vue-tsc -b && npx vite build",
     "preview": "vite preview"
   },
   "dependencies": {

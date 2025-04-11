@@ -25,3 +25,4 @@ app = FastAPI(
 
 app.include_router(api_router, prefix="/api")
 app.mount("/api/media", StaticFiles(directory="media"), name="media")
+app.mount("/", StaticFiles(directory="../frontend/dist", html=True), name="frontend")
