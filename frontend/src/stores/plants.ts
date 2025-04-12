@@ -13,13 +13,13 @@ export const usePlantsStore = defineStore('plants', {
     actions: {
         async fetchPlants() {
             const response = await axios.get<Plant[]>(
-                `/api/plants?minutes=30`
+                `/api/plants?minutes=60`
             )
             this.plants = response.data
         },
         async fetchPlant(id: number) {
             const response = await axios.get<Plant>(
-                `/api/plants/${id}?minutes=30`
+                `/api/plants/${id}?minutes=120`
             )
             return response.data
         },
@@ -29,6 +29,26 @@ export const usePlantsStore = defineStore('plants', {
 
             await axios.post(`/api/plants/${id}/image`, formData)
 
+        },
+        async resetPlantStats(id: number) {
+            await axios.delete(`/api/plants/${id}/stats/reset`)
+            const plant = this.plants.find(plant => plant.id === id)
+            if (plant) {
+                plant.stats = []
+            }
+        },
+        async deletePlant(id: number) {
+            await axios.delete(`/api/plants/${id}`)
+            this.plants = this.plants.filter(plant => plant.id !== id)
+        },
+        async savePlant(plant: Plant) {
+            const response = await axios.put<Plant>(`/api/plants/${plant.id}`, plant)
+            const index = this.plants.findIndex(p => p.id === plant.id)
+            if (index !== -1) {
+                this.plants[index] = {...plant, ...response.data}
+            } else {
+                this.plants.push(response.data)
+            }
         }
     },
     getters: {
@@ -37,7 +57,9 @@ export const usePlantsStore = defineStore('plants', {
                 return {
                     id: plant.id,
                     name: plant.name,
-                    species: plant.species
+                    species: plant.species,
+                    soil_wet: plant.soil_wet,
+                    soil_dry: plant.soil_dry,
                 }
             })
         }

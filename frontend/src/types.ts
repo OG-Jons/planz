@@ -4,6 +4,8 @@ export interface Plant {
     species: string
     image: string
     stats: Stat[]
+    soil_wet: number
+    soil_dry: number
 }
 
 export interface Stat {

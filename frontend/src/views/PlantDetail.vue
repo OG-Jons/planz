@@ -55,7 +55,7 @@ onBeforeRouteUpdate(async (to, from) => {
   <div class="plant-view">
     <h1>Plant Stats Viewer</h1>
     <div class="search-container">
-      <button @click="fetchPlantData(1)">Get Plant Data</button>
+      <button @click="fetchPlantData(plant.id)">Get Plant Data</button>
     </div>
     <div v-if="loading" class="loading">Loading...</div>
     <div v-if="error" class="error">{{ error }}</div>

@@ -1,19 +1,25 @@
 <script setup lang="ts">
 import { usePlantsStore } from "@stores/plants.ts";
-import { onMounted } from "vue";
+import {onMounted} from "vue";
 import Sidebar from "@cmp/Sidebar.vue";
+import {useMediaQuery, useStorage} from "@vueuse/core";
+const isLargeScreen = useMediaQuery('(min-width: 1024px)')
 
 const plantStore = usePlantsStore();
 
+const isExpanded = useStorage('is_expanded', false)
+
 onMounted(() => {
-  plantStore.fetchPlants();
-});
+  plantStore.fetchPlants()
+})
 </script>
 
 <template>
   <div class="app-container">
     <sidebar />
-    <router-view />
+    <div :class="['router', {'mobile': !isLargeScreen}, {'expanded': isExpanded}]">
+      <router-view />
+    </div>
   </div>
 </template>
 
@@ -26,6 +32,31 @@ onMounted(() => {
   --dark-alt: #334155;
   --light: #f1f5f9;
   --sidebar-width: 300px;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+}
+
+.success {
+  background-color: var(--primary);
+
+  &:hover {
+    background-color: #22c55e;
+  }
+}
+.danger {
+  background-color: var(--danger);
+
+  &:hover {
+    background-color: #dc2626;
+  }
+}
+
+.warning {
+  background-color: var(--warning);
+
+  &:hover {
+    background-color: #ca8a04;
+  }
 }
 
 * {
@@ -39,8 +70,18 @@ body {
   background: var(--light);
 }
 
-router-view {
+.router {
+  flex: 1;
+  transition: margin-left 0.3s ease-in-out;
   margin-left: calc(2rem + 32px);
+
+  &.expanded {
+    margin-left: var(--sidebar-width);
+  }
+
+  &.mobile {
+    margin-left: 0;
+  }
 }
 
 button {

@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import {ref} from "vue";
 import {type Plant} from "@/types.ts";
 import PlantStatsChart from "@cmp/PlantStatsChart.vue";
 import PlantImage from "@cmp/PlantImage.vue";
 import {usePlantsStore} from "@stores/plants.ts";
 
-const plants = ref<Plant[] | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 const cache = ref<number | null>(new Date().getTime())
@@ -18,19 +17,14 @@ const fetchPlantData = async () => {
 
   try {
     await plantStore.fetchPlants()
-    plants.value = plantStore.plants
     cache.value = new Date().getTime()
   } catch (err: any) {
     error.value = err.response?.data?.detail || "An error occurred"
-    plants.value = null
+    plantStore.plants = [] as Plant[]
   } finally {
     loading.value = false
   }
 }
-
-onMounted(() => {
-  fetchPlantData()
-})
 
 const uploadPlantImage = async (file: File, id: number) => {
   try {
@@ -53,7 +47,7 @@ const uploadPlantImage = async (file: File, id: number) => {
     <div v-if="loading" class="loading">Loading...</div>
     <div v-if="error" class="error">{{ error }}</div>
 
-    <div v-for="plant in plants">
+    <div v-for="plant in plantStore.plants">
       <div v-if="plant" class="plant-data">
         <h2>{{ plant.name }} ({{ plant.species }})</h2>
 
@@ -72,7 +66,6 @@ const uploadPlantImage = async (file: File, id: number) => {
 .plant-view {
   width: 80%;
   height: 200px;
-  margin: 0.5rem 1rem;
   padding: 20px;
   display: grid;
   grid-template-columns: repeat(1, 1fr);

@@ -41,19 +41,9 @@ const menu = computed(() => [
       <img :src="logoURL" alt="Logo"/>
     </div>
 
-    <!-- Floating toggle for mobile (only when closed) -->
-    <div v-if="!isLargeScreen && !isExpanded" class="menu-toggle-float">
+    <div class="menu-toggle-wrap">
       <button class="menu-toggle" @click="ToggleMenu">
-        <span class="material-icons">menu</span>
-      </button>
-    </div>
-
-    <!-- Standard toggle (shown on desktop or when mobile is expanded) -->
-    <div v-if="isLargeScreen || isExpanded" class="menu-toggle-wrap">
-      <button class="menu-toggle" @click="ToggleMenu">
-    <span class="material-icons">
-      keyboard_double_arrow_right
-    </span>
+        <span class="material-icons">keyboard_double_arrow_right</span>
       </button>
     </div>
 
@@ -225,7 +215,7 @@ aside {
     .menu-toggle-wrap {
       position: fixed;
       top: 1rem;
-      left: 1rem;
+      right: 1rem;
       z-index: 1000;
     }
 
@@ -271,29 +261,6 @@ aside {
     .material-icons,
     .text {
       color: var(--primary);
-    }
-  }
-}
-
-.menu-toggle-float {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1000;
-
-  .menu-toggle {
-    background-color: var(--dark);
-    border-radius: 50%;
-    width: 3rem;
-    height: 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-
-    .material-icons {
-      font-size: 2rem;
-      color: var(--light);
     }
   }
 }

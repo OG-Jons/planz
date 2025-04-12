@@ -2,6 +2,7 @@ import type {RouteRecordRaw} from "vue-router";
 import {createRouter, createWebHistory} from "vue-router";
 import PlantView from "@/views/PlantView.vue";
 import PlantDetail from "@/views/PlantDetail.vue";
+import SettingsView from "@/views/SettingsView.vue";
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -11,6 +12,11 @@ const routes: Array<RouteRecordRaw> = [
         component: PlantView
     },
     // Path to show a single plant with id
+    {
+        path: '/settings',
+        name: 'Settings',
+        component: SettingsView
+    },
     {
         path: '/:id',
         name: 'PlantDetail',
