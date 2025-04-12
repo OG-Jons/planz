@@ -8,11 +8,12 @@ class PlantBase(SQLModel):
     name: str
     species: str
 
-
 class Plant(PlantBase, table=True):
     __tablename__ = "plant"
     id: int = Field(default=None, primary_key=True)
     image: str = Field(default=None, nullable=True)
+    soil_wet: int = Field(default=None, nullable=True)
+    soil_dry: int = Field(default=None, nullable=True)
     stats: List["Stat"] = Relationship(back_populates="plant")
 
 class PlantCreate(PlantBase):
@@ -21,6 +22,8 @@ class PlantCreate(PlantBase):
 class PlantPublic(PlantBase):
     id: int
     image: Optional[str] = None
+    soil_wet: Optional[int] = None
+    soil_dry: Optional[int] = None
 
 class PlantPublicWithStats(PlantPublic):
     stats: List["Stat"]
