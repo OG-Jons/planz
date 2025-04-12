@@ -70,9 +70,20 @@ const uploadPlantImage = async (file: File, id: number) => {
 
 <style scoped>
 .plant-view {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 80%;
+  height: 200px;
+  margin: 0.5rem 1rem;
   padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .plant-view {
+    width: 90%;
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .search-container {

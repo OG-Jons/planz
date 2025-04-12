@@ -22,7 +22,6 @@
     "vue": "^3.5.13",
     "vue-chartjs": "^5.3.2",
     "vue-router": "^4.5.0",
-    "vue-sidebar-menu": "^5.5.0",
     "vue-unicons": "^3.3.1",
     "vue3-apexcharts": "^1.8.0"
   },
@@ -31,6 +30,7 @@
     "@types/node": "^22.13.9",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/tsconfig": "^0.7.0",
+    "sass-embedded": "^1.86.3",
     "typescript": "~5.6.2",
     "vite": "^6.0.5",
     "vue-tsc": "^2.2.0"

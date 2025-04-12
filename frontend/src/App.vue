@@ -13,23 +13,41 @@ onMounted(() => {
 <template>
   <div class="app-container">
     <sidebar />
-    <div class="content-container">
-      <router-view />
-    </div>
+    <router-view />
   </div>
 </template>
 
-<style scoped>
+<style lang="scss">
+:root {
+  --primary: #4ade80;
+  --primary-alt: #22c55e;
+  --grey: #64748b;
+  --dark: #1e293b;
+  --dark-alt: #334155;
+  --light: #f1f5f9;
+  --sidebar-width: 300px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Fira sans', sans-serif;
+}
+
+body {
+  background: var(--light);
+}
+
+button {
+  cursor: pointer;
+  appearance: none;
+  border: none;
+  outline: none;
+  background: none;
+}
+
 .app-container {
   display: flex;
-}
-
-.sidebar {
-  width: 250px; /* Adjust the width as needed */
-}
-
-.content-container {
-  flex-grow: 1;
-  padding: 20px; /* Adjust the padding as needed */
 }
 </style>
