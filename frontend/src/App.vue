@@ -39,6 +39,10 @@ body {
   background: var(--light);
 }
 
+router-view {
+  margin-left: calc(2rem + 32px);
+}
+
 button {
   cursor: pointer;
   appearance: none;

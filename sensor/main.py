@@ -22,6 +22,52 @@ dht_sensor = dht.DHT22(Pin(13))  # D4 corresponds to GPIO2
 # File to store configuration
 CONFIG_FILE = "config.json"
 
+def parse_query_string(query):
+    body = query.split("\r\n\r\n")[1]
+    pairs = body.split('&')
+    result = {}
+    for pair in pairs:
+        if '=' in pair:
+            key, value = pair.split('=', 1)
+        else:
+            key, value = pair, ''
+        # URL decoding
+        value = value.replace('%3A', ':').replace('%2F', '/')
+        result[key] = value
+    return result
+
+def receive_full_request(client_socket):
+    request = b""
+    while True:
+        chunk = client_socket.recv(1024)
+        if not chunk:
+            break
+        request += chunk
+        if b"\r\n\r\n" in request:
+            break
+
+    header_end = request.find(b"\r\n\r\n")
+    headers = request[:header_end].decode("utf-8")
+    body = request[header_end + 4:]
+
+    content_length = 0
+    for line in headers.split("\r\n"):
+        if line.lower().startswith("content-length:"):
+            try:
+                content_length = int(line.split(":")[1].strip())
+            except:
+                content_length = 0
+            break
+
+    while len(body) < content_length:
+        more = client_socket.recv(1024)
+        if not more:
+            break
+        body += more
+
+    full_request = request[:header_end] + b"\r\n\r\n" + body
+    return full_request.decode("utf-8")
+
 def read_dht():
     try:
         dht_sensor.measure()
@@ -81,10 +127,9 @@ def start_configuration_page():
     while True:
         cl, addr = s.accept()
         print("Client connected from", addr)
-        request = cl.recv(1024).decode("utf-8")
+        request = receive_full_request(cl)
         if "POST" in request:
-            body = request.split("\r\n\r\n")[1]
-            data = json.loads(body)
+            data = parse_query_string(request)
             wifi_ssid = data.get("wifi_ssid")
             wifi_password = data.get("wifi_password")
             server_address = data.get("server_address")
@@ -144,16 +189,19 @@ def start_web_server():
     while True:
         cl, addr = s.accept()
         print("Client connected from", addr)
-        request = cl.recv(1024).decode("utf-8")
+        request = receive_full_request(cl)
         if "POST" in request:
-            body = request.split("\r\n\r\n")[1]
-            data = json.loads(body)
+            print("Received POST request")
+            print("Request:", request)
+            data = parse_query_string(request)
+            print("Parsed data:", data)
             wifi_ssid = data.get("wifi_ssid")
             wifi_password = data.get("wifi_password")
             server_address = data.get("server_address")
             plant_name = data.get("plant_name")
             plant_type = data.get("plant_type")
             plant_id = data.get("plant_id")
+            print("Data received:", data)
 
             if plant_id:
                 config = {
@@ -167,6 +215,8 @@ def start_web_server():
                 cl.close()
                 machine.reset()
             elif plant_name and plant_type:
+                # Connect to WI-Fi
+
                 # Register plant and get Plant ID
                 response = requests.post(f"{server_address}/api/plants", json={
                     "name": plant_name,
