@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import {usePlantsStore} from "@stores/plants.ts";
-// import logoURL from '../assets/logo.png'
+import logoURL from '../assets/vue.svg'
 
 const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
 
@@ -35,7 +35,7 @@ const menu = computed(() => [
 <template>
   <aside :class="`${is_expanded ? 'is-expanded' : ''}`">
     <div class="logo">
-      <img src="./" alt="Vue" />
+      <img :src="logoURL" alt="Logo" />
     </div>
 
     <div class="menu-toggle-wrap">
