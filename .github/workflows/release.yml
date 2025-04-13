@@ -78,29 +78,28 @@ jobs:
 
       - name: Build mpy-cross (in Docker)
         run: |
-          pwd
-          ls -la
+          cd micropython
           docker run --rm -v $HOME:$HOME -u $UID -w $PWD larsks/esp-open-sdk make -C mpy-cross
 
       - name: Copy your scripts to frozen modules
         run: |
-          mkdir -p ports/esp8266/modules
-          cp sensor/*.py ports/esp8266/modules/
+          mkdir -p micropython/ports/esp8266/modules
+          cp sensor/*.py micropython/ports/esp8266/modules/
 
       - name: Build firmware (in Docker)
         run: |
-          cd ports/esp8266
+          cd micropython/ports/esp8266
           docker run --rm -v $HOME:$HOME -u $UID -w $PWD larsks/esp-open-sdk make -j BOARD=ESP8266_GENERIC
 
       - name: Upload firmware as artifact
         uses: actions/upload-artifact@v4
         with:
           name: esp8266-firmware
-          path: ports/esp8266/build-ESP8266_GENERIC/firmware*.bin
+          path: micropython/ports/esp8266/build-ESP8266_GENERIC/firmware*.bin
 
       - name: Release firmware (if tagged)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ports/esp8266/build-ESP8266_GENERIC/firmware*.bin
+            micropython/ports/esp8266/build-ESP8266_GENERIC/firmware*.bin
