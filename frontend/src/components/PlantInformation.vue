@@ -16,9 +16,7 @@ defineEmits(['submitted', 'refresh'])
     <div class="plant-title">
       <span class="title">{{ name }} </span>
       <span class="subtitle">{{ species }}</span>
-    </div>
-    <div class="refresh" v-if="isSingle">
-      <button @click="$emit('refresh')">
+      <button v-if="isSingle" @click="$emit('refresh')">
         <span class="material-icons">refresh</span>
       </button>
     </div>
@@ -32,6 +30,7 @@ defineEmits(['submitted', 'refresh'])
 .plant-title {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 }
 
 .title {

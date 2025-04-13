@@ -54,15 +54,12 @@ onBeforeRouteUpdate(async (to, from) => {
 
 <template>
   <div class="plant-view">
-    <div class="search-container">
-      <button @click="fetchPlantData(plant.id)">Get Plant Data</button>
-    </div>
     <div v-if="loading" class="loading">Loading...</div>
     <div v-if="error" class="error">{{ error }}</div>
 
     <div v-if="plant.id" class="plant-data">
       <plant-information :name="plant.name" :species="plant.species" :cache="cache" :image="plant.image"
-                         @submitted="(file) => uploadPlantImage(file, plant.id)" :is-single="true" />
+                         @submitted="(file) => uploadPlantImage(file, plant.id)" @refresh="fetchPlantData(plant.id)" :is-single="true" />
       <div class="chart-container">
         <PlantStatsChart :stats="plant.stats"/>
       </div>
@@ -72,32 +69,9 @@ onBeforeRouteUpdate(async (to, from) => {
 
 <style scoped>
 .plant-view {
-  max-width: 1200px;
+  max-width: 60vw;
   margin: 0 auto;
   padding: 20px;
-}
-
-.search-container {
-  margin: 20px 0;
-}
-
-input {
-  padding: 8px;
-  margin-right: 10px;
-  width: 200px;
-}
-
-button {
-  padding: 8px 16px;
-  background-color: #42b983;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #3aa876;
 }
 
 .chart-container {
