@@ -70,6 +70,12 @@ jobs:
       - name: Install Python dependencies
         run: pip install pyserial esptool
 
+      - name: Clone Micropython repository
+        run: |
+          git clone https://github.com/micropython/micropython.git
+          cd micropython
+          make -C ports/esp8266 submodules
+
       - name: Build mpy-cross (in Docker)
         run: |
           docker run --rm -v $HOME:$HOME -u $UID -w $PWD larsks/esp-open-sdk make -C mpy-cross
