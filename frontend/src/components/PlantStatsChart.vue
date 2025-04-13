@@ -91,7 +91,7 @@ const chartOptions = computed<ApexOptions>(() => ({
         }
       },
       labels: {
-        formatter: (val) => val.toFixed(2)
+        formatter: (val) => val.toFixed(0)
       }
     },
     {
@@ -100,7 +100,7 @@ const chartOptions = computed<ApexOptions>(() => ({
         text: '',
       },
       labels: {
-        formatter: (val) => val.toFixed(2)
+        formatter: (val) => val.toFixed(0)
       }
     },
   ],
@@ -129,4 +129,7 @@ const chartOptions = computed<ApexOptions>(() => ({
 </template>
 
 <style scoped>
+div {
+  width: 100%;
+}
 </style>

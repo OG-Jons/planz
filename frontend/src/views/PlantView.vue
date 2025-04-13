@@ -2,8 +2,8 @@
 import {ref} from "vue";
 import {type Plant} from "@/types.ts";
 import PlantStatsChart from "@cmp/PlantStatsChart.vue";
-import PlantImage from "@cmp/PlantImage.vue";
 import {usePlantsStore} from "@stores/plants.ts";
+import PlantInformation from "@cmp/PlantInformation.vue";
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -39,23 +39,28 @@ const uploadPlantImage = async (file: File, id: number) => {
 </script>
 
 <template>
-  <div class="plant-view">
-    <h1>Plant Stats Viewer</h1>
+  <div class="heading">
+    <h1>Planz</h1>
     <div class="search-container">
-      <button @click="fetchPlantData">Get Plant Data</button>
+      <button @click="fetchPlantData"><span class="material-icons">refresh</span></button>
     </div>
     <div v-if="loading" class="loading">Loading...</div>
     <div v-if="error" class="error">{{ error }}</div>
+  </div>
+  <div class="plant-view">
 
     <div v-for="plant in plantStore.plants">
       <div v-if="plant" class="plant-data">
-        <h2>{{ plant.name }} ({{ plant.species }})</h2>
-
-        <div class="plant-image">
-          <PlantImage :path="plant.image" :cache="cache" @submitted="(file) => uploadPlantImage(file, plant.id)" />
-        </div>
+        <plant-information
+            :name="plant.name"
+            :species="plant.species"
+            :cache="cache"
+            :image="plant.image"
+            @submitted="(file) => uploadPlantImage(file, plant.id)"
+            :is-single="false"
+        />
         <div class="chart-container">
-          <PlantStatsChart :stats="plant.stats" />
+          <PlantStatsChart :stats="plant.stats"/>
         </div>
       </div>
     </div>
@@ -63,9 +68,12 @@ const uploadPlantImage = async (file: File, id: number) => {
 </template>
 
 <style scoped>
+.heading {
+  margin: 1.5rem 0 0 1.5rem;
+}
+
 .plant-view {
-  width: 80%;
-  height: 200px;
+  width: 100%;
   padding: 20px;
   display: grid;
   grid-template-columns: repeat(1, 1fr);
@@ -74,13 +82,8 @@ const uploadPlantImage = async (file: File, id: number) => {
 
 @media (min-width: 768px) {
   .plant-view {
-    width: 90%;
     grid-template-columns: repeat(2, 1fr);
   }
-}
-
-.search-container {
-  margin: 20px 0;
 }
 
 input {

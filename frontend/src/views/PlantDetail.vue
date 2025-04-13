@@ -5,6 +5,7 @@ import PlantStatsChart from "@cmp/PlantStatsChart.vue";
 import PlantImage from "@cmp/PlantImage.vue";
 import {usePlantsStore} from "@stores/plants.ts";
 import {onBeforeRouteUpdate, useRoute} from "vue-router";
+import PlantInformation from "@cmp/PlantInformation.vue";
 
 const plant = reactive<Plant>({} as Plant)
 const loading = ref(false)
@@ -53,23 +54,19 @@ onBeforeRouteUpdate(async (to, from) => {
 
 <template>
   <div class="plant-view">
-    <h1>Plant Stats Viewer</h1>
     <div class="search-container">
       <button @click="fetchPlantData(plant.id)">Get Plant Data</button>
     </div>
     <div v-if="loading" class="loading">Loading...</div>
     <div v-if="error" class="error">{{ error }}</div>
 
-      <div v-if="plant.id" class="plant-data">
-        <h2>{{ plant.name }} ({{ plant.species }})</h2>
-
-        <div class="plant-image">
-          <PlantImage :path="plant.image" :cache="cache" @submitted="(file) => uploadPlantImage(file, plant.id)" />
-        </div>
-        <div class="chart-container">
-          <PlantStatsChart :stats="plant.stats" />
-        </div>
+    <div v-if="plant.id" class="plant-data">
+      <plant-information :name="plant.name" :species="plant.species" :cache="cache" :image="plant.image"
+                         @submitted="(file) => uploadPlantImage(file, plant.id)" :is-single="true" />
+      <div class="chart-container">
+        <PlantStatsChart :stats="plant.stats"/>
       </div>
+    </div>
   </div>
 </template>
 

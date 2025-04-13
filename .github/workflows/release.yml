@@ -109,7 +109,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
           body: ${{ steps.changelog-ci.outputs.changelog }}
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |

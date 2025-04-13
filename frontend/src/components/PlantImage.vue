@@ -25,11 +25,24 @@ const submitted = (files: FileList | null) => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .plant-image {
   cursor: pointer;
   width: fit-content;
   height: fit-content;
+
+  img {
+    border-radius: 50px;
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    transition: all 0.3s ease-in-out;
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+  }
 }
 
 .no-image {

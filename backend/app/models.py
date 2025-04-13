@@ -14,7 +14,7 @@ class Plant(PlantBase, table=True):
     image: str = Field(default=None, nullable=True)
     soil_wet: int = Field(default=None, nullable=True)
     soil_dry: int = Field(default=None, nullable=True)
-    stats: List["Stat"] = Relationship(back_populates="plant")
+    stats: List["Stat"] = Relationship(back_populates="plant", cascade_delete=True)
 
 class PlantCreate(PlantBase):
     pass
