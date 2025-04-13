@@ -10,12 +10,12 @@ const props = defineProps<{
 const chartData = computed(() => ({
   series: [
     {
-      name: 'Soil Humidity',
-      data: props.stats.map(stat => [stat.timestamp, stat.soil_moisture_score]),
-    },
-    {
       name: 'Sunlight',
       data: props.stats.map(stat => [stat.timestamp, stat.sunlight_score])
+    },
+    {
+      name: 'Soil Humidity',
+      data: props.stats.map(stat => [stat.timestamp, stat.soil_moisture_score]),
     },
     {
       name: 'Temperature',
@@ -67,7 +67,7 @@ const chartOptions = computed<ApexOptions>(() => ({
       },
     }
   },
-  colors: ['#37ca10', '#f6c811', '#e85908', '#00a6ff'],
+  colors: ['#f6c811', '#37ca10', '#e85908', '#00a6ff'],
   dataLabels: {
     enabled: false
   },
@@ -82,6 +82,28 @@ const chartOptions = computed<ApexOptions>(() => ({
       datetimeUTC: false
     }
   },
+  yaxis: [
+    {
+      title: {
+        text: 'Sunlight Score',
+        style: {
+          color: '#f6c811'
+        }
+      },
+      labels: {
+        formatter: (val) => val.toFixed(2)
+      }
+    },
+    {
+      opposite: true,
+      title: {
+        text: '',
+      },
+      labels: {
+        formatter: (val) => val.toFixed(2)
+      }
+    },
+  ],
   tooltip: {
     shared: true,
     intersect: false

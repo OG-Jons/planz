@@ -13,4 +13,5 @@ dependencies = [
     "fastapi-utilities>=0.3.0",
     "requests>=2.32.3",
     "filetype>=1.2.0",
+    "alembic>=1.15.2",
 ]

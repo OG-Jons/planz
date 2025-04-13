@@ -31,6 +31,11 @@ COPY --from=ghcr.io/astral-sh/uv:0.4.15 /uv /bin/uv
 # Copy project files
 COPY backend/pyproject.toml backend/uv.lock ./
 COPY backend/app ./app
+COPY backend/migrations ./migrations
+COPY backend/alembic.ini ./
+COPY backend/entrypoint.sh ./
+
+RUN chmod +x entrypoint.sh
 
 RUN mkdir ./media
 
@@ -45,4 +50,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # RUN --mount=type=cache,target=/root/.cache/uv \
 #     uv sync
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+ENTRYPOINT ["/app/entrypoint.sh"]
