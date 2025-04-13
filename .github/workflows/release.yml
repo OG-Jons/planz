@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - "v*.*.*"
-    branches: [ 'master' ]
 
 env:
   REGISTRY: ghcr.io
@@ -97,9 +96,16 @@ jobs:
           name: esp8266-firmware
           path: micropython/ports/esp8266/build-ESP8266_GENERIC/firmware.bin
 
-      - name: Release firmware (if tagged)
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
+      - name: "✏️ Generate release changelog"
+        uses: janheinrichmerker/action-github-changelog-generator@v2.3
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release firmware (if tagged)
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: CHANGELOG.txt
+          token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             micropython/ports/esp8266/build-ESP8266_GENERIC/firmware.bin
