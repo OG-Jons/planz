@@ -72,19 +72,17 @@ jobs:
 
       - name: Build mpy-cross (in Docker)
         run: |
-          docker run --rm -v $HOME:$HOME -u $UID -w $PWD larsks/esp-open-sdk \
-            make -C mpy-cross
+          docker run --rm -v $HOME:$HOME -u $UID -w $PWD larsks/esp-open-sdk make -C mpy-cross
 
       - name: Copy your scripts to frozen modules
         run: |
           mkdir -p ports/esp8266/modules
-          cp scripts/*.py ports/esp8266/modules/
+          cp sensor/*.py ports/esp8266/modules/
 
       - name: Build firmware (in Docker)
         run: |
           cd ports/esp8266
-          docker run --rm -v $HOME:$HOME -u $UID -w $PWD larsks/esp-open-sdk \
-            make -j BOARD=ESP8266_GENERIC
+          docker run --rm -v $HOME:$HOME -u $UID -w $PWD larsks/esp-open-sdk make -j BOARD=ESP8266_GENERIC
 
       - name: Upload firmware as artifact
         uses: actions/upload-artifact@v4
