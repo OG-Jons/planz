@@ -61,56 +61,40 @@ jobs:
 
   build-micropython-firmware:
     runs-on: ubuntu-latest
-    name: Build MicroPython firmware for ESP8266
+    name: Build MicroPython firmware for ESP8266 using official Docker toolchain
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y make python3 python3-pip wget tar gcc g++ libffi-dev git
-          pip3 install pyserial
+      - name: Install Python dependencies
+        run: pip install pyserial esptool
 
-      - name: Install Xtensa GCC toolchain (official method)
+      - name: Build mpy-cross (in Docker)
         run: |
-          mkdir -p toolchain
-          cd toolchain
-          wget https://github.com/espressif/crosstool-NG/releases/download/esp-2021r1/xtensa-lx106-elf-gcc8_4_0-esp-2021r1-linux-amd64.tar.xz
-          tar -xf xtensa-lx106-elf-gcc8_4_0-esp-2021r1-linux-amd64.tar.xz
-          echo "$PWD/xtensa-lx106-elf/bin" >> $GITHUB_PATH
+          docker run --rm -v $HOME:$HOME -u $UID -w $PWD larsks/esp-open-sdk \
+            make -C mpy-cross
 
-      - name: Clone MicroPython
+      - name: Copy your scripts to frozen modules
         run: |
-          git clone https://github.com/micropython/micropython.git
-          cd micropython
-          git submodule update --init
+          mkdir -p ports/esp8266/modules
+          cp scripts/*.py ports/esp8266/modules/
 
-      - name: Build mpy-cross (required for frozen modules)
+      - name: Build firmware (in Docker)
         run: |
-          cd micropython/mpy-cross
-          make
+          cd ports/esp8266
+          docker run --rm -v $HOME:$HOME -u $UID -w $PWD larsks/esp-open-sdk \
+            make -j BOARD=ESP8266_GENERIC
 
-      - name: Add your MicroPython scripts
-        run: |
-          mkdir -p micropython/ports/esp8266/modules
-          cp scripts/*.py micropython/ports/esp8266/modules/
-
-      - name: Build MicroPython ESP8266 firmware
-        run: |
-          cd micropython/ports/esp8266
-          make submodules
-          make
-
-      - name: Upload firmware artifact
+      - name: Upload firmware as artifact
         uses: actions/upload-artifact@v4
         with:
           name: esp8266-firmware
-          path: micropython/ports/esp8266/build/firmware*.bin
+          path: ports/esp8266/build-ESP8266_GENERIC/firmware*.bin
 
-      - name: Release firmware (tagged)
+      - name: Release firmware (if tagged)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            micropython/ports/esp8266/build/firmware*.bin
+            ports/esp8266/build-ESP8266_GENERIC/firmware*.bin
