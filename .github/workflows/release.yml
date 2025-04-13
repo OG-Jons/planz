@@ -2,9 +2,9 @@ name: Build and Release (Docker + MicroPython)
 
 on:
   push:
-    tags:
-      - "v*.*.*"
-    branches: [ 'release' ]
+#    tags:
+#      - "v*.*.*"
+    branches: [ 'master' ]
 
 env:
   REGISTRY: ghcr.io
@@ -78,6 +78,8 @@ jobs:
 
       - name: Build mpy-cross (in Docker)
         run: |
+          pwd
+          ls -la
           docker run --rm -v $HOME:$HOME -u $UID -w $PWD larsks/esp-open-sdk make -C mpy-cross
 
       - name: Copy your scripts to frozen modules
