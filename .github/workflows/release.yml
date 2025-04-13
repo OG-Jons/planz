@@ -105,7 +105,7 @@ jobs:
         if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v2
         with:
-          body_path: CHANGELOG.txt
+          body_path: /github/workspace/CHANGELOG.md
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             micropython/ports/esp8266/build-ESP8266_GENERIC/firmware.bin
