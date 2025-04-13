@@ -96,16 +96,19 @@ jobs:
           name: esp8266-firmware
           path: micropython/ports/esp8266/build-ESP8266_GENERIC/firmware.bin
 
-      - name: "✏️ Generate release changelog"
-        uses: janheinrichmerker/action-github-changelog-generator@v2.3
+      - name: conventional Changelog Action
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v6.0.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release firmware (if tagged)
         if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v2
         with:
-          body_path: /github/workspace/CHANGELOG.md
+          tag_name: ${{ steps.changelog.outputs.tag }}
+          name: Release ${{ steps.changelog.outputs.tag }}
+          body: ${{ steps.changelog.outputs.changelog }}
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             micropython/ports/esp8266/build-ESP8266_GENERIC/firmware.bin
