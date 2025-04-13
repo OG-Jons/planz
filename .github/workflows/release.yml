@@ -2,8 +2,8 @@ name: Build and Release (Docker + MicroPython)
 
 on:
   push:
-#    tags:
-#      - "v*.*.*"
+    tags:
+      - "v*.*.*"
     branches: [ 'master' ]
 
 env:
@@ -95,11 +95,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: esp8266-firmware
-          path: micropython/ports/esp8266/build-ESP8266_GENERIC/firmware*.bin
+          path: micropython/ports/esp8266/build-ESP8266_GENERIC/firmware.bin
 
       - name: Release firmware (if tagged)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            micropython/ports/esp8266/build-ESP8266_GENERIC/firmware*.bin
+            micropython/ports/esp8266/build-ESP8266_GENERIC/firmware.bin
