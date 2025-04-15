@@ -2,7 +2,6 @@
 import {onMounted, reactive, ref} from "vue";
 import {type Plant} from "@/types.ts";
 import PlantStatsChart from "@cmp/PlantStatsChart.vue";
-import PlantImage from "@cmp/PlantImage.vue";
 import {usePlantsStore} from "@stores/plants.ts";
 import {onBeforeRouteUpdate, useRoute} from "vue-router";
 import PlantInformation from "@cmp/PlantInformation.vue";
