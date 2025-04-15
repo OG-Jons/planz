@@ -5,7 +5,7 @@ Planz is a web application for plant care and management. It allows users to tra
 ## Sensor Setup
 For each plant, you need to set up a sensor. The sensor is a small device that measures the temperature and humidity of the plant. It is connected to the internet and sends the data to the server.
 
-For the sensor, you can follow the guide here: [sensor/README.md](./sensor/README.md)
+For the sensor, you can follow the guide here: [docs/sensor.md](./docs/sensor.md)
 
 ## Deployment
 
@@ -60,11 +60,11 @@ networks:
 
 ## Backend Development
 
-Backend docs: [backend/README.md](./backend/README.md).
+Backend docs: [docs/backend.md](./docs/backend.md).
 
 ## Frontend Development
 
-Frontend docs: [frontend/README.md](./frontend/README.md).
+Frontend docs: [docs/frontend.md](./docs/frontend.md).
 
 
 ## Development
